@@ -111,6 +111,10 @@ class MemoryManager:
         partitionSize = 256
         partitionAddress = 0
         
+        
+        if len(self.freePartitionList.values()) == 0:
+            return False
+        
         for k,v in self.freePartitionList.items():
             #import biggest Partition Size, address.
             
