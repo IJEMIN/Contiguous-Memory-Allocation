@@ -22,7 +22,7 @@ class Process:
         endPosition = self.address+self.allocated
         
         
-        for i in range(self.address,endPosition-1):
+        for i in range(self.address,endPosition):
             mem.memID[i] = Memory.Memory.EMPTY
         
         self.allocated = 0
@@ -31,10 +31,11 @@ class Process:
     
     #allocate self to memory. call by memory class
     def allocate(self,mem):
+        
         endPosition = self.address+self.required
         
         #allocating
-        for i in range(self.address,endPosition-1):
+        for i in range(self.address,endPosition):
             mem.memID[i] = self.name
             
             
@@ -54,3 +55,6 @@ class Process:
         if self.address <= other.address:
             return True
         return False
+    
+    def exportProcessInfo(self):
+        return "PROCESS NAME: " + str(self.name) + ", Address: " + str(self.address) + ", Allocated Memory: " + str(self.allocated) + "\n"

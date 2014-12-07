@@ -10,6 +10,7 @@ class MemoryManager:
     #Free Memory Partition Container
     # KEY: PARTITION START ADDRESS, VALUE: PATITION SIZE
     freePartitionList = {}
+    processNameAttacher = 0
     
     def __init__(self):
         self.freePartitionList = {0:self.mainMemory.memSize}
@@ -29,7 +30,7 @@ class MemoryManager:
             if self.mainMemory.memID[i] == Memory.Memory.EMPTY:
                 for j in range (i,self.mainMemory.memSize):
                     #if last space is empty.
-                    if j == self.mainMemory.memSize-1:
+                    if j == self.mainMemory.memSize-1 and self.mainMemory.memID[j] == Memory.Memory.EMPTY:
                         self.freePartitionList[i] = (j-i+1)
                         i = j+1
                         
@@ -38,19 +39,23 @@ class MemoryManager:
                     if self.mainMemory.memID[j] != Memory.Memory.EMPTY:
                         #add new Partition Information
                         #i= partition head, j-i = partition size
-                        self.freePartitionList[i] = (j-i+1)
+                        self.freePartitionList[i] = (j-i)
                         
                         #Jump to new check Position
-                        i = j+1
+                        i = j
                         break
             i+=1
 
     def AllocateNewProcessByFirstFit(self,memoryRequired):
         
+        if memoryRequired<=2:
+            return False
+        
         #check free partition
         for k,v in self.freePartitionList.items():
-            if v> memoryRequired:
-                newProcess = Process.Process(len(self.processList),k,memoryRequired)
+            if v>= memoryRequired:
+                newProcess = Process.Process(self.processNameAttacher,k,memoryRequired)
+                self.processNameAttacher +=1
                 newProcess.allocate(self.mainMemory)
                 self.processList.append(newProcess)
                 return True
@@ -80,7 +85,8 @@ class MemoryManager:
         return False
         '''
     def AllocateNewProcessByWorstFit(self,memoryRequired):
-        
+        if memoryRequired<=2:
+            return False
         partitionAddress = 0
         partitionSize = 0
         for k,v in self.freePartitionList.items():
@@ -93,20 +99,22 @@ class MemoryManager:
             return False
         
         
-        newProcess = Process.Process(len(self.processList),partitionAddress,memoryRequired)
+        newProcess = Process.Process(self.processNameAttacher,partitionAddress,memoryRequired)
+        self.processNameAttacher +=1
         newProcess.allocate(self.mainMemory)
         self.processList.append(newProcess)
         return True
     
     def AllocateNewProcessByBestFit(self,memoryRequired):
-        
+        if memoryRequired<=2:
+            return False
         partitionSize = 256
         partitionAddress = 0
         
         for k,v in self.freePartitionList.items():
             #import biggest Partition Size, address.
             
-            if partitionSize > v and v >= memoryRequired:
+            if partitionSize >= v and v >= memoryRequired:
                 partitionSize = v
                 partitionAddress = k
             
@@ -114,7 +122,8 @@ class MemoryManager:
             return False
         
         
-        newProcess = Process.Process(len(self.processList),partitionAddress,memoryRequired)
+        newProcess = Process.Process(self.processNameAttacher,partitionAddress,memoryRequired)
+        self.processNameAttacher +=1
         newProcess.allocate(self.mainMemory)
         self.processList.append(newProcess)
         return True
@@ -123,6 +132,7 @@ class MemoryManager:
         for i in range(0,len(self.processList)):
             if self.processList[i].name == processName:
                 self.processList[i].release(self.mainMemory)
+                self.processList.pop(i)
                 return True
         return False
     

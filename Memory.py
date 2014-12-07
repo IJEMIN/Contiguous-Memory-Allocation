@@ -4,7 +4,7 @@ class Memory:
     memID = []
     def __init__(self,memSize):
         self.memSize = memSize
-        for i in range(0,memSize-1):
+        for i in range(0,memSize):
             self.memID.append(self.EMPTY)
     
     def AllocateProcess(self,allocatedProcess):
